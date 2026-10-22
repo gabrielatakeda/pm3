@@ -1,0 +1,123 @@
+<div class="page">
+  <div class="card">
+    <div class="card-body">
+      <header class="page-header">
+        <div class="page-heading">
+          <h1 class="page-title"><span class="icon"><i class="bi bi-file-earmark-bar-graph"></i></span>Relatório</h1>
+          <ul class="page-hints">
+            @if (loginService.hasPermission("Colaborador")) {
+              <li>Pressione Enter ou a lupa para buscar; o X limpa os filtros</li>
+            }
+            @if (loginService.hasPermission("Admin")) {
+              <li>Use os filtros para gerar relatórios personalizados</li>
+              <li>"Exportar" gera uma planilha com os empréstimos</li>
+            }
+          </ul>
+        </div>
+        @if (loginService.hasPermission("Admin")) {
+          <div class="page-actions">
+            <button type="button" id="imprimirRelatorio" class="btn btn-primary" (click)="exportarParaXLSX()">
+              <i class="bi bi-file-earmark-spreadsheet"></i> Exportar
+            </button>
+          </div>
+        }
+      </header>
+
+      <div class="filters">
+        <mdb-form-control>
+          <input mdbInput type="text" id="patrimonio" [(ngModel)]="patrimonio" name="patrimonio" (keydown.enter)="filtrarCampos()" class="form-control" />
+          <label mdbLabel class="form-label" for="patrimonio">Patrimônio</label>
+        </mdb-form-control>
+        <mdb-form-control>
+          <input mdbInput type="text" id="ra" [(ngModel)]="ra" name="ra" (keydown.enter)="filtrarCampos()" class="form-control" />
+          <label mdbLabel class="form-label" for="ra">RA do aluno</label>
+        </mdb-form-control>
+        <mdb-form-control>
+          <input mdbInput type="text" id="usuario" [(ngModel)]="usuario" name="usuario" (keydown.enter)="filtrarCampos()" class="form-control" />
+          <label mdbLabel class="form-label" for="usuario">Operador</label>
+        </mdb-form-control>
+        <mdb-form-control>
+          <input mdbInput type="text" id="dataRetirada" [(ngModel)]="dataRetirada" (keydown.enter)="filtrarCampos()" mask="00-00-0000" [dropSpecialCharacters]="false" name="dataRetirada" class="form-control" />
+          <label mdbLabel class="form-label" for="dataRetirada">Data de retirada</label>
+        </mdb-form-control>
+        <mdb-form-control>
+          <input mdbInput type="text" id="dataDevolucao" [(ngModel)]="dataDevolucao" (keydown.enter)="filtrarCampos()" mask="00-00-0000" [dropSpecialCharacters]="false" name="dataDevolucao" class="form-control" />
+          <label mdbLabel class="form-label" for="dataDevolucao">Data de devolução</label>
+        </mdb-form-control>
+        <select class="form-select" [(ngModel)]="situacao" name="situacao" aria-label="Situação">
+          <option value="" disabled selected hidden>Situação</option>
+          <option value="Em Andamento">Em Andamento</option>
+          <option value="Encerrado">Encerrado</option>
+        </select>
+        <div class="filters-actions">
+          <button type="button" class="btn btn-primary" (click)="filtrarCampos()" title="Buscar"><i class="bi bi-search"></i> Buscar</button>
+          <button type="button" class="btn btn-outline-secondary btn-icon" (click)="limparCampos()" title="Limpar filtros" aria-label="Limpar filtros"><i class="bi bi-x-lg"></i></button>
+        </div>
+      </div>
+
+      <div id="pdfContent">
+        <div class="header-container">
+          <img class="logo-container" src="assets/logo.png" alt="Logo">
+          <span class="relatorio-title">RELATÓRIO DE EQUIPAMENTOS EMPRESTADOS</span>
+        </div>
+
+        <div class="table-wrap">
+          <table id="relatorioList" class="table table-striped table-hover align-middle">
+            <thead>
+              <tr>
+                <th>Patrimônio</th>
+                <th>RA</th>
+                <th>Aluno</th>
+                <th>Operador</th>
+                <th>Retirada</th>
+                <th>Devolução</th>
+                <th>Situação</th>
+                <th class="col-size col-actions">
+                  <select id="pageSize" [(ngModel)]="pageSize" (change)="onPageSizeChange()" class="form-select" aria-label="Itens por página">
+                    @for (size of pageSizeOptions; track $index) {
+                      <option [value]="size">{{ size }}</option>
+                    }
+                  </select>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (emprestimo of lista; track $index) {
+                <tr>
+                  <td><strong>{{ emprestimo.equipamento.patrimonio }}</strong></td>
+                  <td>{{ emprestimo.aluno.ra }}</td>
+                  <td>{{ emprestimo.aluno.nome }}</td>
+                  <td>{{ emprestimo.usuario.nome }}</td>
+                  <td class="nowrap">{{ emprestimo.dataRetirada | date: 'dd/MM/yyyy HH:mm' }}</td>
+                  <td class="nowrap">{{ emprestimo.dataDevolucao | date: 'dd/MM/yyyy HH:mm' }}</td>
+                  <td>
+                    <span class="badge-status" [class.warn]="emprestimo.situacao === 'Em Andamento'" [class.ok]="emprestimo.situacao !== 'Em Andamento'">
+                      {{ emprestimo.situacao }}
+                    </span>
+                  </td>
+                  <td class="col-actions">
+                    @if (emprestimo.situacao === "Em Andamento") {
+                      <button type="button" class="btn btn-danger btn-icon" (click)="confirmarEncerramento(emprestimo)" title="Encerrar empréstimo" aria-label="Encerrar empréstimo">
+                        <i class="bi bi-box-arrow-in-down"></i>
+                      </button>
+                    } @else {
+                      <span class="done" title="Encerrado"><i class="bi bi-check-circle-fill"></i></span>
+                    }
+                  </td>
+                </tr>
+              } @empty {
+                <tr class="empty-row"><td colspan="8">Nenhum empréstimo encontrado</td></tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        <nav class="pager" aria-label="Paginação">
+          <button type="button" class="btn btn-outline-secondary" [disabled]="currentPage === 1" (click)="previousPage()"><i class="bi bi-chevron-left"></i> Anterior</button>
+          <span class="info">Página {{ currentPage }} de {{ totalPages || 1 }}</span>
+          <button type="button" class="btn btn-outline-secondary" [disabled]="currentPage >= totalPages" (click)="nextPage()">Próxima <i class="bi bi-chevron-right"></i></button>
+        </nav>
+      </div>
+    </div>
+  </div>
+</div>

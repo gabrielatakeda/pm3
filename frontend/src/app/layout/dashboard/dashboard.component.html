@@ -1,0 +1,99 @@
+<div class="page">
+  <header class="page-header">
+    <div class="page-heading">
+      <h1 class="page-title"><span class="icon"><i class="bi bi-speedometer2"></i></span>Bem-vindo ao EasyNote</h1>
+      <ul class="page-hints">
+        <li>Resumo dos empréstimos de equipamentos</li>
+      </ul>
+    </div>
+    <div class="page-actions">
+      <a routerLink="/admin/emprestimo/new" class="btn btn-primary">
+        <i class="bi bi-plus-lg"></i> Novo empréstimo
+      </a>
+    </div>
+  </header>
+
+  <!-- Indicadores -->
+  <section class="kpis">
+    <div class="kpi">
+      <span class="kpi-icon"><i class="bi bi-collection"></i></span>
+      <div><div class="kpi-value">{{ totalEmprestimos }}</div><div class="kpi-label">Empréstimos registrados</div></div>
+    </div>
+    <div class="kpi">
+      <span class="kpi-icon warn"><i class="bi bi-hourglass-split"></i></span>
+      <div><div class="kpi-value">{{ emAndamento }}</div><div class="kpi-label">Em andamento</div></div>
+    </div>
+    <div class="kpi">
+      <span class="kpi-icon ok"><i class="bi bi-check2-circle"></i></span>
+      <div><div class="kpi-value">{{ encerrados }}</div><div class="kpi-label">Encerrados</div></div>
+    </div>
+    <div class="kpi">
+      <span class="kpi-icon brown"><i class="bi bi-laptop"></i></span>
+      <div><div class="kpi-value">{{ equipamentosDistintos }}</div><div class="kpi-label">Equipamentos utilizados</div></div>
+    </div>
+  </section>
+
+  <section class="charts">
+    <div class="card chart-card chart-main">
+      <div class="chart-head">
+        <h2>Empréstimos por dia</h2>
+        <select id="periodo" name="periodo" class="form-select" (change)="onPeriodoChange($event)" aria-label="Período">
+          <option value="7">Últimos 7 dias</option>
+          <option value="15">Últimos 15 dias</option>
+          <option value="30" selected>Últimos 30 dias</option>
+        </select>
+      </div>
+      <div class="chart-box chart-box-lg">
+        @if (emprestimosPorDia.length) {
+          <ngx-charts-bar-vertical
+            [scheme]="colorScheme"
+            [results]="emprestimosPorDia"
+            [xAxis]="true"
+            [yAxis]="true"
+            [legend]="false"
+            [roundEdges]="true"
+            [barPadding]="12"
+          ></ngx-charts-bar-vertical>
+        } @else {
+          <div class="chart-empty"><i class="bi bi-bar-chart"></i>Nenhum empréstimo no período</div>
+        }
+      </div>
+    </div>
+
+    <div class="card chart-card">
+      <div class="chart-head"><h2>Cursos com mais utilizações</h2></div>
+      <div class="chart-box">
+        @if (emprestimosPorCurso.length) {
+          <ngx-charts-bar-horizontal
+            [scheme]="colorScheme"
+            [results]="emprestimosPorCurso"
+            [xAxis]="true"
+            [yAxis]="true"
+            [legend]="false"
+            [roundEdges]="true"
+          ></ngx-charts-bar-horizontal>
+        } @else {
+          <div class="chart-empty"><i class="bi bi-mortarboard"></i>Sem dados ainda</div>
+        }
+      </div>
+    </div>
+
+    <div class="card chart-card">
+      <div class="chart-head"><h2>Equipamentos mais emprestados</h2></div>
+      <div class="chart-box">
+        @if (emprestimosPorPatrimonio.length) {
+          <ngx-charts-bar-horizontal
+            [scheme]="colorScheme"
+            [results]="emprestimosPorPatrimonio"
+            [xAxis]="true"
+            [yAxis]="true"
+            [legend]="false"
+            [roundEdges]="true"
+          ></ngx-charts-bar-horizontal>
+        } @else {
+          <div class="chart-empty"><i class="bi bi-laptop"></i>Sem dados ainda</div>
+        }
+      </div>
+    </div>
+  </section>
+</div>

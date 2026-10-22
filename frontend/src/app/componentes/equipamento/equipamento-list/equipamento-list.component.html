@@ -1,0 +1,107 @@
+<div class="page">
+  <div class="card">
+    <div class="card-body">
+      <header class="page-header">
+        <div class="page-heading">
+          <h1 class="page-title"><span class="icon"><i class="bi bi-laptop"></i></span>Equipamentos</h1>
+          <ul class="page-hints">
+            @if (loginService.hasPermission("Admin")) {
+              <li>Adicione, edite ou desative equipamentos</li>
+            }
+            <li>Use os filtros e pressione Enter ou a lupa para buscar</li>
+          </ul>
+        </div>
+        @if (loginService.hasPermission("Admin")) {
+          <div class="page-actions">
+            <a routerLink="/admin/equipamento/new" class="btn btn-primary">
+              <i class="bi bi-plus-lg"></i> Novo equipamento
+            </a>
+          </div>
+        }
+      </header>
+
+      <div class="filters">
+        <mdb-form-control>
+          <input mdbInput type="text" id="modelo" [(ngModel)]="modelo" (keydown.enter)="filtrarCampos()" name="modelo" class="form-control" />
+          <label mdbLabel class="form-label" for="modelo">Modelo</label>
+        </mdb-form-control>
+        <mdb-form-control>
+          <input mdbInput type="text" id="marca" [(ngModel)]="marca" name="marca" (keydown.enter)="filtrarCampos()" class="form-control" />
+          <label mdbLabel class="form-label" for="marca">Marca</label>
+        </mdb-form-control>
+        <mdb-form-control>
+          <input mdbInput type="text" id="patrimonio" [(ngModel)]="patrimonio" name="patrimonio" (keydown.enter)="filtrarCampos()" class="form-control" />
+          <label mdbLabel class="form-label" for="patrimonio">Patrimônio</label>
+        </mdb-form-control>
+        <select class="form-select" [(ngModel)]="situacao" name="situacao" (keydown.enter)="filtrarCampos()" aria-label="Situação">
+          <option value="" disabled selected hidden>Situação</option>
+          <option value="Disponível">Disponível</option>
+          <option value="Em Manutenção">Em Manutenção</option>
+          <option value="Com Defeito">Com Defeito</option>
+          <option value="Desativado">Desativado</option>
+        </select>
+        <div class="filters-actions">
+          <button type="button" class="btn btn-primary" (click)="filtrarCampos()" title="Buscar"><i class="bi bi-search"></i> Buscar</button>
+          <button type="button" class="btn btn-outline-secondary btn-icon" (click)="limparCampos()" title="Limpar filtros" aria-label="Limpar filtros"><i class="bi bi-x-lg"></i></button>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table class="table table-striped table-hover align-middle">
+          <thead>
+            <tr>
+              <th>Patrimônio</th>
+              <th>Marca</th>
+              <th>Modelo</th>
+              <th>Situação</th>
+              <th>Observação</th>
+              <th class="col-size col-actions">
+                <select id="pageSize" [(ngModel)]="pageSize" (change)="onPageSizeChange()" class="form-select" aria-label="Itens por página">
+                  @for (size of pageSizeOptions; track $index) {
+                    <option [value]="size">{{ size }}</option>
+                  }
+                </select>
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (equipamento of lista; track $index) {
+              <tr>
+                <td><strong>{{ equipamento.patrimonio }}</strong></td>
+                <td>{{ equipamento.marca }}</td>
+                <td>{{ equipamento.modelo }}</td>
+                <td>
+                  <span class="badge-status"
+                        [class.ok]="equipamento.situacao === 'Disponível'"
+                        [class.warn]="equipamento.situacao === 'Em Manutenção'"
+                        [class.danger]="equipamento.situacao === 'Com Defeito'">
+                    {{ equipamento.situacao }}
+                  </span>
+                </td>
+                <td class="text-muted">{{ equipamento.observacao }}</td>
+                <td class="col-actions">
+                  @if (loginService.hasPermission("Admin")) {
+                    @if (equipamento.situacao === "Desativado") {
+                      <button type="button" class="btn btn-primary btn-icon" (click)="reativar(equipamento.patrimonio)" title="Reativar" aria-label="Reativar"><i class="bi bi-arrow-clockwise"></i></button>
+                    } @else {
+                      <a [routerLink]="['/admin/equipamento/edit', equipamento.id]" class="btn btn-warning btn-icon" title="Editar" aria-label="Editar"><i class="bi bi-pencil"></i></a>
+                      <button type="button" class="btn btn-danger btn-icon" (click)="desativar(equipamento.patrimonio)" title="Desativar" aria-label="Desativar"><i class="bi bi-slash-circle"></i></button>
+                    }
+                  }
+                </td>
+              </tr>
+            } @empty {
+              <tr class="empty-row"><td colspan="6">Nenhum equipamento encontrado</td></tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <nav class="pager" aria-label="Paginação">
+        <button type="button" class="btn btn-outline-secondary" [disabled]="currentPage === 1" (click)="previousPage()"><i class="bi bi-chevron-left"></i> Anterior</button>
+        <span class="info">Página {{ currentPage }} de {{ totalPages || 1 }}</span>
+        <button type="button" class="btn btn-outline-secondary" [disabled]="currentPage >= totalPages" (click)="nextPage()">Próxima <i class="bi bi-chevron-right"></i></button>
+      </nav>
+    </div>
+  </div>
+</div>

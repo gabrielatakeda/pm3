@@ -1,0 +1,60 @@
+<div class="page">
+  <div class="card">
+    <div class="card-body">
+      <header class="page-header">
+        <div class="page-heading">
+          <h1 class="page-title"><span class="icon"><i class="bi bi-people"></i></span>Usuários</h1>
+          <ul class="page-hints">
+            <li>Operadores com acesso ao sistema</li>
+            <li>Adicione, edite ou desative usuários</li>
+          </ul>
+        </div>
+        <div class="page-actions">
+          <a routerLink="/admin/usuario/new" class="btn btn-primary">
+            <i class="bi bi-plus-lg"></i> Novo usuário
+          </a>
+        </div>
+      </header>
+
+      <div class="table-wrap">
+        <table class="table table-striped table-hover align-middle">
+          <thead>
+            <tr>
+              <th>Nome</th>
+              <th>CPF</th>
+              <th>Função</th>
+              <th>Situação</th>
+              <th class="col-actions"><span class="visually-hidden">Ações</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (usuario of lista; track $index) {
+              <tr>
+                <td><strong>{{ usuario.nome }}</strong></td>
+                <td>{{ usuario.cpf }}</td>
+                <td><span class="role" [class.admin]="usuario.role === 'Admin'">{{ usuario.role }}</span></td>
+                <td>
+                  @if (usuario.ativo === true) {
+                    <span class="badge-status ok">Ativo</span>
+                  } @else {
+                    <span class="badge-status">Desativado</span>
+                  }
+                </td>
+                <td class="col-actions">
+                  @if (usuario.ativo === false) {
+                    <button type="button" class="btn btn-primary btn-icon" (click)="reativar(usuario.id)" title="Reativar" aria-label="Reativar"><i class="bi bi-arrow-clockwise"></i></button>
+                  } @else {
+                    <a [routerLink]="['/admin/usuario/edit', usuario.id]" class="btn btn-warning btn-icon" title="Editar" aria-label="Editar"><i class="bi bi-pencil"></i></a>
+                    <button type="button" class="btn btn-danger btn-icon" (click)="desativar(usuario.id)" title="Desativar" aria-label="Desativar"><i class="bi bi-slash-circle"></i></button>
+                  }
+                </td>
+              </tr>
+            } @empty {
+              <tr class="empty-row"><td colspan="5">Nenhum usuário cadastrado</td></tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

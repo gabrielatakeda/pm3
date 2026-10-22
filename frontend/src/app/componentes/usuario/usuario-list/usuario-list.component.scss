@@ -1,0 +1,10 @@
+/* Estilos compartilhados (page-header, table-wrap) em src/styles.scss */
+:host { display: block; }
+
+.role {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--brown-600);
+
+  &.admin { color: var(--green-700); }
+}

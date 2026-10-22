@@ -1,0 +1,42 @@
+<nav class="navbar navbar-expand-lg fixed-top" id="header">
+  <div class="container-fluid nav-inner">
+    <a class="navbar-brand" routerLink="/admin/dashboard" (click)="fecharMenu()">
+      <span class="brand-mark"><i class="bi bi-journal-bookmark-fill"></i></span>
+      <span>Easy<strong>Note</strong></span>
+    </a>
+
+    <button
+      class="navbar-toggler"
+      type="button"
+      (click)="basicNavbar.toggle()"
+      [attr.aria-expanded]="!basicNavbar.collapsed"
+      aria-controls="navbarSupportedContent"
+      aria-label="Abrir menu"
+    >
+      <i class="bi" [class.bi-list]="basicNavbar.collapsed" [class.bi-x-lg]="!basicNavbar.collapsed"></i>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarSupportedContent" mdbCollapse #basicNavbar="mdbCollapse">
+      <ul class="navbar-nav me-auto">
+        @for (item of menu; track item.rota) {
+          @if (!item.admin || loginService.hasPermission("Admin")) {
+            <li class="nav-item">
+              <a class="nav-link" [routerLink]="item.rota" routerLinkActive="active" (click)="fecharMenu()">
+                <i class="bi {{ item.icone }}"></i>
+                {{ item.titulo }}
+              </a>
+            </li>
+          }
+        }
+      </ul>
+      <ul class="navbar-nav ms-lg-auto">
+        <li class="nav-item">
+          <a class="nav-link sair" (click)="autenticarService.logout()" role="button">
+            <i class="bi bi-box-arrow-right"></i>
+            Sair
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>

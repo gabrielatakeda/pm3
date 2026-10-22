@@ -1,0 +1,38 @@
+<div class="page page--narrow">
+  <div class="card">
+    <div class="card-body">
+      <header class="page-header">
+        <div class="page-heading">
+          <h1 class="page-title"><span class="icon"><i class="bi bi-mortarboard"></i></span>{{ tituloComponente }}</h1>
+          <ul class="page-hints"><li>Campos obrigatórios: nome, RA e curso</li></ul>
+        </div>
+      </header>
+
+      <form #newEquipamento="ngForm">
+        <div class="form-grid">
+          <mdb-form-control class="span-2">
+            <input mdbInput type="text" id="alunoNome" name="alunoNome" class="form-control" required [(ngModel)]="aluno.nome" />
+            <label mdbLabel class="form-label" for="alunoNome">Nome</label>
+          </mdb-form-control>
+          <mdb-form-control>
+            <input mdbInput type="text" id="ra" name="ra" class="form-control" required [(ngModel)]="aluno.ra" />
+            <label mdbLabel class="form-label" for="ra">RA</label>
+          </mdb-form-control>
+          <mdb-form-control>
+            <input mdbInput type="text" id="curso" [(ngModel)]="aluno.curso" required name="curso" class="form-control" />
+            <label mdbLabel class="form-label" for="curso">Curso</label>
+          </mdb-form-control>
+        </div>
+
+        <div class="form-footer">
+          <a routerLink="/admin/aluno" class="btn btn-outline-secondary"><i class="bi bi-arrow-left"></i> Voltar</a>
+          @if (aluno.id === 0) {
+            <button type="button" [disabled]="!newEquipamento.valid" (click)="save()" class="btn btn-primary"><i class="bi bi-check-lg"></i> Salvar</button>
+          } @else {
+            <button type="button" [disabled]="!newEquipamento.valid" (click)="update()" class="btn btn-primary"><i class="bi bi-check-lg"></i> Atualizar</button>
+          }
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

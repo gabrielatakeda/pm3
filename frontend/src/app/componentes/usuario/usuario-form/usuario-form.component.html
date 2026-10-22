@@ -1,0 +1,59 @@
+<div class="page page--narrow">
+  <div class="card">
+    <div class="card-body">
+      <header class="page-header">
+        <div class="page-heading">
+          <h1 class="page-title"><span class="icon"><i class="bi bi-person-gear"></i></span>{{ tituloComponente }}</h1>
+          <ul class="page-hints">
+            @if (usuario.id === null) {
+              <li>Todos os campos são obrigatórios</li>
+            } @else {
+              <li>Deixe a senha em branco para manter a atual</li>
+            }
+          </ul>
+        </div>
+      </header>
+
+      <form #newUsuario="ngForm">
+        <div class="form-grid">
+          <mdb-form-control class="span-2">
+            <input mdbInput type="text" id="nome" name="nome" class="form-control" required [(ngModel)]="usuario.nome" />
+            <label mdbLabel class="form-label" for="nome">Nome</label>
+          </mdb-form-control>
+          <mdb-form-control>
+            <input mdbInput type="text" id="cpf" name="cpf" mask="000.000.000-00" [dropSpecialCharacters]="false" class="form-control" required [(ngModel)]="usuario.cpf" inputmode="numeric" />
+            <label mdbLabel class="form-label" for="cpf">CPF</label>
+          </mdb-form-control>
+          <select class="form-select" [(ngModel)]="usuario.role" name="role" aria-label="Função">
+            <option value="Admin">Admin</option>
+            <option value="Colaborador">Colaborador</option>
+          </select>
+          <mdb-form-control>
+            <input mdbInput type="text" id="login" name="login" class="form-control" required [(ngModel)]="usuario.login" autocomplete="off" />
+            <label mdbLabel class="form-label" for="login">Login</label>
+          </mdb-form-control>
+          @if (usuario.id === null) {
+            <mdb-form-control>
+              <input mdbInput type="password" id="senha" name="senha" class="form-control" required [(ngModel)]="usuario.senha" autocomplete="new-password" />
+              <label mdbLabel class="form-label" for="senha">Senha</label>
+            </mdb-form-control>
+          } @else {
+            <mdb-form-control>
+              <input mdbInput type="password" id="senha" name="senha" class="form-control" [(ngModel)]="usuario.senha" autocomplete="new-password" />
+              <label mdbLabel class="form-label" for="senha">Senha</label>
+            </mdb-form-control>
+          }
+        </div>
+
+        <div class="form-footer">
+          <a routerLink="/admin/usuario" class="btn btn-outline-secondary"><i class="bi bi-arrow-left"></i> Voltar</a>
+          @if (usuario.id === 0) {
+            <button type="button" [disabled]="!newUsuario.valid" (click)="save()" class="btn btn-primary"><i class="bi bi-check-lg"></i> Salvar</button>
+          } @else {
+            <button type="button" [disabled]="!newUsuario.valid" (click)="update()" class="btn btn-primary"><i class="bi bi-check-lg"></i> Atualizar</button>
+          }
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

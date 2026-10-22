@@ -1,0 +1,55 @@
+:host { display: block; }
+
+.team {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+}
+
+.member {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 28px 20px 22px;
+  background: var(--brown-50);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow);
+  }
+
+  h2 { margin: 0 0 4px; font-size: 1.2rem; font-weight: 700; color: var(--brown-900); }
+}
+
+.photo {
+  width: 128px;
+  height: 128px;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 4px solid var(--surface);
+  box-shadow: 0 0 0 3px var(--green-400);
+  margin-bottom: 16px;
+}
+
+.role { margin: 0; font-weight: 600; color: var(--green-700); }
+.desc { margin: 2px 0 16px; color: var(--muted); font-size: 0.9rem; }
+
+.social {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: auto;
+  padding: 6px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--brown-300);
+  color: var(--brown-700);
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-decoration: none;
+
+  &:hover { background: var(--green-700); border-color: var(--green-700); color: #fff; }
+}

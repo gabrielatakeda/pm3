@@ -1,0 +1,77 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: easynote-db-pvc
+  namespace: easynote
+spec:
+  accessModes: ["ReadWriteOnce"]
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: easynote-db
+  namespace: easynote
+  labels:
+    app: easynote-db
+spec:
+  replicas: 1                # banco com volume RWO: apenas 1 replica
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: easynote-db
+  template:
+    metadata:
+      labels:
+        app: easynote-db
+    spec:
+      containers:
+        - name: mysql
+          image: mysql:8.0
+          args: ["--innodb-buffer-pool-size=128M", "--performance-schema=OFF"]
+          ports:
+            - containerPort: 3306
+          env:
+            - name: MYSQL_DATABASE
+              valueFrom:
+                configMapKeyRef: { name: easynote-config, key: DB1_NAME }
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef: { name: easynote-db-secret, key: MYSQL_ROOT_PASSWORD }
+            - name: MYSQL_USER
+              valueFrom:
+                secretKeyRef: { name: easynote-db-secret, key: MYSQL_USER }
+            - name: MYSQL_PASSWORD
+              valueFrom:
+                secretKeyRef: { name: easynote-db-secret, key: MYSQL_PASSWORD }
+          readinessProbe:
+            exec:
+              command: ["sh", "-c", "mysqladmin ping -h 127.0.0.1 -uroot -p\"$MYSQL_ROOT_PASSWORD\" --silent"]
+            initialDelaySeconds: 15
+            periodSeconds: 5
+          resources:
+            requests: { cpu: 100m, memory: 256Mi }
+            limits: { memory: 768Mi }
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/mysql
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: easynote-db-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: easynote-db
+  namespace: easynote
+spec:
+  type: ClusterIP            # acessivel apenas dentro do cluster
+  selector:
+    app: easynote-db
+  ports:
+    - port: 3306
+      targetPort: 3306

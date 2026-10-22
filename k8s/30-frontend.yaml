@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: easynote-frontend
+  namespace: easynote
+  labels:
+    app: easynote-frontend
+spec:
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1          # sobe 1 Pod novo por vez
+      maxUnavailable: 0    # nunca fica com menos de 2 Pods prontos (sem indisponibilidade)
+  selector:
+    matchLabels:
+      app: easynote-frontend
+  template:
+    metadata:
+      labels:
+        app: easynote-frontend
+    spec:
+      containers:
+        - name: frontend
+          image: easynote-frontend:2.0
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 80
+          readinessProbe:
+            httpGet: { path: /, port: 80 }
+            periodSeconds: 5
+          resources:
+            requests: { cpu: 50m, memory: 32Mi }
+            limits: { memory: 128Mi }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: easynote-frontend
+  namespace: easynote
+spec:
+  type: NodePort             # exposto para fora do cluster (navegador)
+  selector:
+    app: easynote-frontend
+  ports:
+    - port: 80
+      targetPort: 80
+      nodePort: 30080

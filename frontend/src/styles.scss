@@ -1,0 +1,297 @@
+/* =====================================================================
+   EasyNote - estilos globais
+   Paleta principal: marrom (estrutura/texto) + verde (acoes/destaques)
+   ===================================================================== */
+
+// Variaveis do MDB/Bootstrap: definidas ANTES do import para que botoes,
+// inputs, foco, paginacao e tabelas herdem a paleta automaticamente.
+$primary:   #2f6b3a;  // verde floresta
+$secondary: #7a5236;  // marrom
+$success:   #3e8e4f;
+$danger:    #b0412e;  // terracota
+$warning:   #c58a2a;  // ocre
+$info:      #4f7d6a;
+$dark:      #2b1d14;
+
+$body-bg:    #f6f1ea;
+$body-color: #2b1d14;
+$border-radius: 0.6rem;
+
+$font-family-base: 'Space Grotesk', system-ui, -apple-system, 'Segoe UI', sans-serif;
+$btn-text-transform: none;
+$btn-box-shadow: none;
+$btn-hover-box-shadow: 0 6px 14px -6px rgba(43, 29, 20, 0.45);
+
+$table-striped-bg: rgba(122, 82, 54, 0.045);
+$table-hover-bg:   rgba(47, 107, 58, 0.08);
+
+@import '@fortawesome/fontawesome-free/css/all.css';
+@import 'mdb-angular-ui-kit/assets/scss/mdb.scss';
+
+/* ---------- Tokens ---------- */
+:root {
+  --brown-900: #2b1d14;
+  --brown-800: #3d2a1d;
+  --brown-700: #5a3d2b;
+  --brown-600: #7a5236;
+  --brown-300: #c9b3a0;
+  --brown-200: #e2d5c8;
+  --brown-100: #efe6dc;
+  --brown-50:  #f6f1ea;
+
+  --green-800: #234f2b;
+  --green-700: #2f6b3a;
+  --green-600: #3e8e4f;
+  --green-400: #7fb98a;
+  --green-100: #dcebd9;
+  --green-50:  #eef5ec;
+
+  --danger:  #b0412e;
+  --warning: #c58a2a;
+
+  --surface: #ffffff;
+  --line:    #e6dccf;
+  --muted:   #7b6a5c;
+
+  --radius:    14px;
+  --radius-sm: 10px;
+  --shadow:    0 1px 2px rgba(43, 29, 20, 0.06), 0 8px 24px -12px rgba(43, 29, 20, 0.18);
+  --nav-h:     64px;
+}
+
+* {
+  font-family: 'Space Grotesk', system-ui, -apple-system, 'Segoe UI', sans-serif;
+}
+
+/* icones nao podem herdar a fonte de texto */
+.bi::before, [class^='bi-']::before, [class*=' bi-']::before { font-family: bootstrap-icons !important; }
+.fas, .fa-solid { font-family: 'Font Awesome 6 Free' !important; }
+
+html, body {
+  background: var(--brown-50);
+  color: var(--brown-900);
+}
+
+a { color: var(--green-700); }
+a:hover { color: var(--green-800); }
+
+::selection { background: var(--green-100); }
+
+/* ---------- Layout das paginas ---------- */
+.page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: calc(var(--nav-h) + 28px) 16px 48px;
+}
+.page--narrow { max-width: 780px; }
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+.card > .card-body { padding: clamp(18px, 3vw, 32px); }
+
+/* Cabecalho da pagina: titulo + dicas + acoes */
+.page-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding-bottom: 20px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid var(--line);
+}
+.page-heading { min-width: 0; flex: 1 1 320px; }
+.page-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0 0 6px;
+  font-size: clamp(1.3rem, 2.4vw, 1.7rem);
+  font-weight: 700;
+  color: var(--brown-900);
+  letter-spacing: -0.01em;
+}
+.page-title .icon {
+  display: inline-grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: var(--green-100);
+  color: var(--green-700);
+  font-size: 1.15rem;
+  flex: none;
+}
+.page-hints {
+  margin: 0;
+  padding: 0 0 0 52px;
+  list-style: none;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+.page-hints li { position: relative; padding-left: 14px; }
+.page-hints li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.6em;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--green-400);
+}
+.page-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+
+/* ---------- Filtros ---------- */
+.filters {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  align-items: center;
+  padding: 16px;
+  margin-bottom: 20px;
+  background: var(--brown-50);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+}
+.filters-actions { display: flex; gap: 8px; }
+.filters .form-select, .filters .form-control { background-color: var(--surface); }
+
+/* ---------- Botoes ---------- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  letter-spacing: 0;
+  text-transform: none;
+  border-radius: var(--radius-sm);
+  padding: 0.55rem 1rem;
+  transition: transform 0.15s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+}
+.btn:hover:not(:disabled) { transform: translateY(-1px); }
+.btn:active:not(:disabled) { transform: translateY(0); }
+.btn-icon { width: 38px; height: 38px; padding: 0; }
+.btn-icon i { font-size: 1rem; }
+.btn-outline-secondary {
+  color: var(--brown-700);
+  border: 1px solid var(--brown-300);
+  background: var(--surface);
+}
+.btn-outline-secondary:hover {
+  color: var(--brown-900);
+  background: var(--brown-100);
+  border-color: var(--brown-600);
+}
+
+/* ---------- Formularios ---------- */
+.form-outline .form-control ~ .form-notch div { border-color: var(--brown-300); }
+.form-outline .form-control:focus ~ .form-label,
+.form-outline .form-control.active ~ .form-label { color: var(--green-700); }
+.form-outline .form-control[readonly] { background: var(--brown-50); }
+.form-select {
+  border-color: var(--brown-300);
+  border-radius: 0.45rem;
+  min-height: calc(2.08rem + 2px);
+}
+.form-select:focus {
+  border-color: var(--green-700);
+  box-shadow: 0 0 0 0.2rem rgba(47, 107, 58, 0.15);
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px 16px;
+}
+.form-grid .span-2 { grid-column: 1 / -1; }
+.form-footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 28px;
+  padding-top: 20px;
+  border-top: 1px solid var(--line);
+}
+
+/* ---------- Tabelas ---------- */
+.table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  -webkit-overflow-scrolling: touch;
+}
+.table-wrap .table { margin: 0; min-width: 640px; }
+.table > thead th {
+  background: var(--brown-100);
+  color: var(--brown-700);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+  vertical-align: middle;
+  border-bottom: 1px solid var(--line);
+}
+.table > tbody td { vertical-align: middle; border-color: var(--line); }
+.table .col-actions { text-align: right; white-space: nowrap; width: 1%; }
+.table .col-actions .btn + .btn { margin-left: 6px; }
+.table .col-size { width: 1%; }
+.table .col-size .form-select { width: 78px; min-height: 0; padding: 0.2rem 1.8rem 0.2rem 0.6rem; font-size: 0.85rem; }
+
+.empty-row td { text-align: center; color: var(--muted); padding: 32px 12px !important; }
+
+/* Selo de status */
+.badge-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  white-space: nowrap;
+  background: var(--brown-100);
+  color: var(--brown-700);
+}
+.badge-status::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+.badge-status.ok      { background: var(--green-100); color: var(--green-800); }
+.badge-status.warn    { background: #f6e9cf; color: #845b14; }
+.badge-status.danger  { background: #f4dcd6; color: #8a2f1f; }
+
+/* ---------- Paginacao ---------- */
+.pager {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 20px;
+}
+.pager .info { color: var(--muted); font-size: 0.9rem; padding: 0 8px; }
+
+/* ---------- SweetAlert2 com a paleta ---------- */
+.swal2-styled.swal2-confirm { background-color: var(--green-700) !important; }
+.swal2-styled.swal2-cancel  { background-color: var(--brown-600) !important; }
+.swal2-styled.swal2-deny    { background-color: var(--danger) !important; }
+.swal2-popup { border-radius: var(--radius) !important; }
+
+/* ---------- Responsivo ---------- */
+@media (max-width: 768px) {
+  :root { --nav-h: 58px; }
+  .page { padding-top: calc(var(--nav-h) + 16px); }
+  .page-hints { padding-left: 0; }
+  .page-actions, .page-actions .btn { width: 100%; }
+  .form-grid { grid-template-columns: 1fr; }
+  .form-footer .btn { flex: 1 1 auto; }
+  .filters-actions .btn { flex: 1; }
+  .pager .info { order: -1; width: 100%; text-align: center; }
+  .pager .btn { flex: 1; }
+}

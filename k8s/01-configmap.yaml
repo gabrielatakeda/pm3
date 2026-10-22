@@ -1,0 +1,10 @@
+# Configuracoes nao sensiveis do backend (lidas pelo application.properties)
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: easynote-config
+  namespace: easynote
+data:
+  DB1_HOST: easynote-db      # nome do Service do MySQL (DNS interno do cluster)
+  DB1_PORT: "3306"
+  DB1_NAME: easynote

@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>EasyNote - Balanceamento</title>
+<style>
+  :root {
+    --bg: #f6f1ea; --card: #ffffff; --text: #2b1d14; --muted: #7b6a5c;
+    --border: #e6dccf; --accent: #2f6b3a; --dead: #c9b3a0;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1f1510; --card: #2b1d14; --text: #efe6dc; --muted: #b5a291;
+      --border: #3d2a1d; --accent: #5fa56c; --dead: #5a3d2b;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 24px 16px; background: var(--bg); color: var(--text);
+    font: 15px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  main { max-width: 960px; margin: 0 auto; }
+  h1 { font-size: 22px; margin: 0 0 4px; }
+  p.sub { margin: 0 0 20px; color: var(--muted); }
+  .bar { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-bottom: 20px; }
+  button {
+    font: inherit; padding: 8px 14px; border-radius: 8px; cursor: pointer;
+    border: 1px solid var(--border); background: var(--card); color: var(--text);
+  }
+  button.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .stat { color: var(--muted); }
+  .stat b { color: var(--text); font-variant-numeric: tabular-nums; }
+  .pods { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; margin-bottom: 24px; }
+  .pod {
+    background: var(--card); border: 1px solid var(--border); border-left: 6px solid var(--c);
+    border-radius: 10px; padding: 14px 16px; transition: opacity .3s;
+  }
+  .pod.idle { opacity: .55; border-left-color: var(--dead); }
+  .pod .name { font: 600 13px/1.3 ui-monospace, Consolas, monospace; word-break: break-all; }
+  .pod .count { font-size: 34px; font-weight: 700; font-variant-numeric: tabular-nums; margin: 6px 0 2px; }
+  .pod .meta { font-size: 12px; color: var(--muted); }
+  .pod .share { height: 6px; background: var(--border); border-radius: 3px; margin-top: 10px; overflow: hidden; }
+  .pod .share i { display: block; height: 100%; background: var(--c); width: 0; transition: width .3s; }
+  h2 { font-size: 15px; margin: 0 0 8px; }
+  ol#log {
+    list-style: none; margin: 0; padding: 0; background: var(--card);
+    border: 1px solid var(--border); border-radius: 10px; max-height: 320px; overflow: auto;
+    font: 13px/1.4 ui-monospace, Consolas, monospace;
+  }
+  ol#log li { display: flex; gap: 10px; padding: 5px 12px; border-bottom: 1px solid var(--border); }
+  ol#log li:last-child { border-bottom: 0; }
+  ol#log .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--c); margin-top: 4px; flex: none; }
+  ol#log .t { color: var(--muted); flex: none; }
+  ol#log .err { color: #d92d20; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Balanceamento de carga entre Pods</h1>
+  <p class="sub">Cada requisição vai para <code>/api/info</code>. O nginx repassa para o Service <code>easynote-backend</code>, que distribui entre os Pods do backend.</p>
+
+  <div class="bar">
+    <button id="toggle" class="primary">Pausar</button>
+    <button id="reset">Zerar contadores</button>
+    <span class="stat">Requisições: <b id="total">0</b></span>
+    <span class="stat">Erros: <b id="errors">0</b></span>
+    <span class="stat">Pods vistos: <b id="seen">0</b></span>
+  </div>
+
+  <div class="pods" id="pods"></div>
+
+  <h2>Últimas respostas</h2>
+  <ol id="log"></ol>
+</main>
+
+<script>
+  const INTERVAL_MS = 500;
+  const IDLE_AFTER_MS = 4000;
+  const COLORS = ['#2f6b3a', '#a0673f', '#5fa56c', '#7a5236', '#c58a2a', '#234f2b', '#c9b3a0'];
+
+  const pods = new Map(); // nome -> { count, last, color, el }
+  let total = 0, errors = 0, running = true, timer = null;
+
+  const $ = (id) => document.getElementById(id);
+
+  function podFor(name, data) {
+    if (!pods.has(name)) {
+      const color = COLORS[pods.size % COLORS.length];
+      const el = document.createElement('div');
+      el.className = 'pod';
+      el.style.setProperty('--c', color);
+      el.innerHTML = '<div class="name"></div><div class="count">0</div>' +
+                     '<div class="meta"></div><div class="share"><i></i></div>';
+      el.querySelector('.name').textContent = name;
+      $('pods').appendChild(el);
+      pods.set(name, { count: 0, last: 0, color, el });
+    }
+    const p = pods.get(name);
+    p.el.querySelector('.meta').textContent = 'IP ' + data.podIp + ' · nó ' + data.node;
+    return p;
+  }
+
+  function addLog(text, color, isError) {
+    const li = document.createElement('li');
+    li.style.setProperty('--c', color);
+    const t = new Date().toLocaleTimeString('pt-BR');
+    li.innerHTML = '<span class="dot"></span><span class="t"></span><span></span>';
+    li.children[1].textContent = t;
+    li.children[2].textContent = text;
+    if (isError) li.children[2].className = 'err';
+    const log = $('log');
+    log.prepend(li);
+    while (log.children.length > 40) log.lastChild.remove();
+  }
+
+  function render() {
+    const now = Date.now();
+    $('total').textContent = total;
+    $('errors').textContent = errors;
+    $('seen').textContent = pods.size;
+    for (const p of pods.values()) {
+      p.el.querySelector('.count').textContent = p.count;
+      p.el.querySelector('.share i').style.width = (total ? (p.count / total) * 100 : 0) + '%';
+      p.el.classList.toggle('idle', now - p.last > IDLE_AFTER_MS);
+    }
+  }
+
+  async function tick() {
+    try {
+      const res = await fetch('/api/info', { cache: 'no-store' });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const data = await res.json();
+      const p = podFor(data.pod, data);
+      p.count++; p.last = Date.now(); total++;
+      addLog(data.pod, p.color, false);
+    } catch (e) {
+      errors++;
+      addLog('falha: ' + e.message, '#d92d20', true);
+    }
+    render();
+  }
+
+  function start() { timer = setInterval(tick, INTERVAL_MS); }
+  function stop() { clearInterval(timer); }
+
+  $('toggle').onclick = () => {
+    running = !running;
+    running ? start() : stop();
+    $('toggle').textContent = running ? 'Pausar' : 'Continuar';
+  };
+  $('reset').onclick = () => {
+    pods.clear(); total = 0; errors = 0;
+    $('pods').innerHTML = ''; $('log').innerHTML = '';
+    render();
+  };
+  setInterval(render, 1000);
+  start();
+</script>
+</body>
+</html>

@@ -1,0 +1,87 @@
+:host { display: block; }
+
+/* Indicadores */
+.kpis {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
+}
+.kpi {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 18px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+.kpi-icon {
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  border-radius: 12px;
+  font-size: 1.25rem;
+  background: var(--green-100);
+  color: var(--green-700);
+  flex: none;
+
+  &.ok    { background: var(--green-100); color: var(--green-800); }
+  &.warn  { background: #f6e9cf; color: #845b14; }
+  &.brown { background: var(--brown-100); color: var(--brown-600); }
+}
+.kpi-value {
+  font-size: 1.7rem;
+  font-weight: 700;
+  line-height: 1.1;
+  color: var(--brown-900);
+  font-variant-numeric: tabular-nums;
+}
+.kpi-label { font-size: 0.85rem; color: var(--muted); }
+
+/* Graficos */
+.charts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+.chart-main { grid-column: 1 / -1; }
+
+.chart-card { padding: 18px 18px 8px; min-width: 0; }
+.chart-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 8px;
+
+  h2 { margin: 0; font-size: 1.05rem; font-weight: 700; color: var(--brown-800); }
+  .form-select { width: auto; min-width: 170px; }
+}
+
+/* ngx-charts sem [view] ocupa o tamanho do container */
+.chart-box { position: relative; height: 260px; width: 100%; }
+.chart-box-lg { height: 340px; }
+
+.chart-empty {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: var(--muted);
+  i { font-size: 2rem; color: var(--brown-300); }
+}
+
+:host ::ng-deep .ngx-charts text { fill: var(--muted); font-family: 'Space Grotesk', sans-serif; }
+:host ::ng-deep .ngx-charts .gridline-path { stroke: var(--line); }
+
+@media (max-width: 900px) {
+  .charts { grid-template-columns: 1fr; }
+  .chart-box-lg { height: 280px; }
+  .chart-box { height: 230px; }
+}

@@ -1,0 +1,6 @@
+.env
+target
+bin
+.git
+.idea
+*.iml

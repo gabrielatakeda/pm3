@@ -1,0 +1,70 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: easynote-backend
+  namespace: easynote
+  labels:
+    app: easynote-backend
+spec:
+  replicas: 2                # 2 Pods: o Service balanceia entre eles
+  selector:
+    matchLabels:
+      app: easynote-backend
+  template:
+    metadata:
+      labels:
+        app: easynote-backend
+    spec:
+      containers:
+        - name: backend
+          image: easynote-backend:1.0
+          imagePullPolicy: Never   # imagem construida dentro do minikube
+          ports:
+            - containerPort: 8082
+          envFrom:
+            - configMapRef:
+                name: easynote-config
+          env:
+            - name: DB1_USER
+              valueFrom:
+                secretKeyRef: { name: easynote-db-secret, key: MYSQL_USER }
+            - name: DB1_PASS
+              valueFrom:
+                secretKeyRef: { name: easynote-db-secret, key: MYSQL_PASSWORD }
+            # Downward API: expoe dados do Pod para o endpoint /api/info
+            - name: POD_NAME
+              valueFrom:
+                fieldRef: { fieldPath: metadata.name }
+            - name: POD_IP
+              valueFrom:
+                fieldRef: { fieldPath: status.podIP }
+            - name: NODE_NAME
+              valueFrom:
+                fieldRef: { fieldPath: spec.nodeName }
+          startupProbe:
+            httpGet: { path: /api/info, port: 8082 }
+            periodSeconds: 5
+            failureThreshold: 36     # ate 3 min para o Spring subir
+          readinessProbe:
+            httpGet: { path: /api/info, port: 8082 }
+            periodSeconds: 5
+          livenessProbe:
+            httpGet: { path: /api/info, port: 8082 }
+            periodSeconds: 15
+            failureThreshold: 3
+          resources:
+            requests: { cpu: 100m, memory: 300Mi }
+            limits: { memory: 512Mi }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: easynote-backend     # mesmo nome usado no proxy_pass do nginx
+  namespace: easynote
+spec:
+  type: ClusterIP
+  selector:
+    app: easynote-backend
+  ports:
+    - port: 8082
+      targetPort: 8082

@@ -1,0 +1,55 @@
+<div class="page page--narrow">
+  <div class="card">
+    <div class="card-body">
+      <header class="page-header">
+        <div class="page-heading">
+          <h1 class="page-title"><span class="icon"><i class="bi bi-laptop"></i></span>{{ tituloComponente }}</h1>
+          <ul class="page-hints"><li>A data de aquisição segue o formato dd-mm-aaaa</li></ul>
+        </div>
+      </header>
+
+      <form #newEquipamento="ngForm">
+        <div class="form-grid">
+          <mdb-form-control class="span-2">
+            <input mdbInput type="text" id="patrimonio" name="patrimonio" class="form-control" required [(ngModel)]="equipamento.patrimonio" />
+            <label mdbLabel class="form-label" for="patrimonio">Patrimônio</label>
+          </mdb-form-control>
+          <mdb-form-control>
+            <input mdbInput type="text" id="marca" name="marca" class="form-control" required [(ngModel)]="equipamento.marca" />
+            <label mdbLabel class="form-label" for="marca">Marca</label>
+          </mdb-form-control>
+          <mdb-form-control>
+            <input mdbInput type="text" id="modelo" [(ngModel)]="equipamento.modelo" required name="modelo" class="form-control" />
+            <label mdbLabel class="form-label" for="modelo">Modelo</label>
+          </mdb-form-control>
+          <mdb-form-control>
+            <input mdbInput type="text" name="dataAquisicao" mask="00-00-0000" [dropSpecialCharacters]="false" [(ngModel)]="equipamento.dataAquisicao"
+                   required id="dataAquisicao" class="form-control" inputmode="numeric" />
+            <label mdbLabel class="form-label" for="dataAquisicao">Data de aquisição</label>
+          </mdb-form-control>
+          <select class="form-select" [(ngModel)]="equipamento.situacao" [disabled]="equipamento.situacao === 'Desativado'" name="situacao" aria-label="Situação">
+            <option value="Disponível">Disponível</option>
+            <option value="Em Manutenção">Em Manutenção</option>
+            <option value="Com Defeito">Com Defeito</option>
+            @if (equipamento.situacao === 'Desativado') {
+              <option value="Desativado">Desativado</option>
+            }
+          </select>
+          <mdb-form-control class="span-2">
+            <input mdbInput type="text" id="observacao" name="observacao" [(ngModel)]="equipamento.observacao" class="form-control" />
+            <label mdbLabel class="form-label" for="observacao">Observação</label>
+          </mdb-form-control>
+        </div>
+
+        <div class="form-footer">
+          <a routerLink="/admin/equipamento" class="btn btn-outline-secondary"><i class="bi bi-arrow-left"></i> Voltar</a>
+          @if (equipamento.id === 0) {
+            <button type="button" [disabled]="!newEquipamento.valid" (click)="save()" class="btn btn-primary"><i class="bi bi-check-lg"></i> Salvar</button>
+          } @else {
+            <button type="button" [disabled]="!newEquipamento.valid" (click)="update()" class="btn btn-primary"><i class="bi bi-check-lg"></i> Atualizar</button>
+          }
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

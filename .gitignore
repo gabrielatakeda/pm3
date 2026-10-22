@@ -1,0 +1,13 @@
+# Build / dependencias
+node_modules/
+target/
+dist/
+.angular/
+
+# IDEs
+.idea/
+.vscode/
+*.iml
+
+# Segredos locais
+.env

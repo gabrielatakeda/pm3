@@ -1,0 +1,47 @@
+/*package app.config;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.sql.DataSource;
+
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.jdbc.DataSourceBuilder;
+import org.springframework.boot.orm.jpa.EntityManagerFactoryBuilder;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
+
+
+@Configuration
+@EnableJpaRepositories(
+		basePackages = "app.uniamerica.repository", //colocar aqui o caminho do package dos REPOSITORIES desta configuração
+		entityManagerFactoryRef = "base2EntityManager")
+public class Base2Config {
+	
+	@Bean
+	@ConfigurationProperties(prefix = "base2.datasource") //atualizar o nome baseX
+	public DataSource base2DataSource() {
+		return DataSourceBuilder.create().build();
+	}
+
+	@Bean
+	public LocalContainerEntityManagerFactoryBean base2EntityManager( //atualizar o nome baseX
+			EntityManagerFactoryBuilder builder,
+			@Qualifier("base2DataSource") DataSource dataSource) { //atualizar o nome baseX
+		return builder
+				.dataSource(dataSource)
+				.packages("app.uniamerica.entity") //colocar aqui o caminho do package das ENTITIES desta configuração
+				.properties(hibernateProperties())
+				.build();
+	}
+
+	private Map<String, Object> hibernateProperties() {
+		Map<String, Object> properties = new HashMap<>();
+		properties.put("hibernate.dialect", "org.hibernate.dialect.MySQLDialect");
+		return properties;
+	}
+	
+}*/

@@ -1,0 +1,80 @@
+<div class="page">
+  <div class="card">
+    <div class="card-body">
+      <header class="page-header">
+        <div class="page-heading">
+          <h1 class="page-title"><span class="icon"><i class="bi bi-arrow-left-right"></i></span>Empréstimo de notebook</h1>
+          <ul class="page-hints">
+            <li>Informe o RA do aluno e o patrimônio para <strong>iniciar</strong> um empréstimo</li>
+            <li>Informe apenas o patrimônio para <strong>encerrar</strong> o empréstimo</li>
+          </ul>
+        </div>
+      </header>
+
+      <form #newEmprestimo="ngForm">
+        <div class="emprestimo-grid">
+          <!-- Dados digitados pelo operador -->
+          <section class="painel">
+            <h2 class="painel-title"><i class="bi bi-pencil-square"></i> Dados do empréstimo</h2>
+            <div class="campos">
+              <mdb-form-control>
+                <input mdbInput type="text" [(ngModel)]="aluno.ra" id="raAluno" (blur)="findAlunoByRa()" name="ra" class="form-control form-control-lg" required tabindex="1" />
+                <label mdbLabel class="form-label" for="raAluno">RA do aluno</label>
+              </mdb-form-control>
+              <mdb-form-control>
+                <input mdbInput type="text" id="patEquip" [(ngModel)]="equipamento.patrimonio" (blur)="findEquipamentoByPatrimonio()" name="patrimonio" class="form-control form-control-lg" required tabindex="2" />
+                <label mdbLabel class="form-label" for="patEquip">Patrimônio do equipamento</label>
+              </mdb-form-control>
+              <mdb-form-control>
+                <textarea mdbInput id="obs" [(ngModel)]="emprestimo.observacao" name="observacao" class="form-control" rows="4" tabindex="3"></textarea>
+                <label mdbLabel class="form-label" for="obs">Observação</label>
+              </mdb-form-control>
+            </div>
+          </section>
+
+          <!-- Dados preenchidos automaticamente -->
+          <section class="painel painel-info">
+            <h2 class="painel-title"><i class="bi bi-person-vcard"></i> Informações encontradas</h2>
+            <div class="aluno-resumo">
+              <img src="avatar.svg" class="avatar" alt="" />
+              <div class="min-w-0">
+                <div class="aluno-nome">{{ aluno.nome || 'Aluno não informado' }}</div>
+                <div class="aluno-curso">{{ aluno.curso || 'Digite o RA para buscar' }}</div>
+              </div>
+            </div>
+            <div class="campos campos-2">
+              <mdb-form-control>
+                <input mdbInput type="text" id="infoNome" [(ngModel)]="aluno.nome" name="nome" class="form-control" [readonly]="true" />
+                <label mdbLabel class="form-label" for="infoNome">Nome do aluno</label>
+              </mdb-form-control>
+              <mdb-form-control>
+                <input mdbInput type="text" id="infoCurso" [(ngModel)]="aluno.curso" name="curso" class="form-control" [readonly]="true" />
+                <label mdbLabel class="form-label" for="infoCurso">Curso do aluno</label>
+              </mdb-form-control>
+              <mdb-form-control>
+                <input mdbInput type="text" id="infoMarca" [(ngModel)]="equipamento.marca" name="marca" class="form-control" [readonly]="true" />
+                <label mdbLabel class="form-label" for="infoMarca">Marca do equipamento</label>
+              </mdb-form-control>
+              <mdb-form-control>
+                <input mdbInput type="text" id="infoModelo" [(ngModel)]="equipamento.modelo" name="modelo" class="form-control" [readonly]="true" />
+                <label mdbLabel class="form-label" for="infoModelo">Modelo do equipamento</label>
+              </mdb-form-control>
+            </div>
+          </section>
+        </div>
+
+        <div class="form-footer">
+          <button type="button" class="btn btn-outline-secondary" (click)="limparCampo()" tabindex="6">
+            <i class="bi bi-eraser"></i> Limpar campos
+          </button>
+          <button type="button" class="btn btn-danger" (click)="encerrarEmprestimo()" tabindex="5">
+            <i class="bi bi-box-arrow-in-down"></i> Encerrar empréstimo
+          </button>
+          <button type="button" class="btn btn-primary" [disabled]="!newEmprestimo.valid || emprestimoEncontrado" (click)="iniciarEmprestimo()" tabindex="4">
+            <i class="bi bi-box-arrow-up-right"></i> Iniciar empréstimo
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

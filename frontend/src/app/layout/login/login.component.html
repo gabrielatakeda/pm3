@@ -1,0 +1,68 @@
+<div class="login-page">
+  <video #loginVideo autoplay muted loop playsinline class="login-video" aria-hidden="true">
+    <source src="/assets/the-hacking-experience.mp4" type="video/mp4" />
+  </video>
+  <div class="login-overlay"></div>
+
+  <main class="login-panel">
+    <div class="brand">
+      <span class="brand-mark"><i class="bi bi-journal-bookmark-fill"></i></span>
+      <span class="brand-name">Easy<strong>Note</strong></span>
+    </div>
+
+    <h1>Bem-vindo de volta</h1>
+    <p class="lead-text">Controle de empréstimo de equipamentos para alunos.</p>
+
+    <form class="login-form" (ngSubmit)="autenticar()">
+      <mdb-form-control>
+        <input
+          mdbInput
+          type="text"
+          id="loginUsuario"
+          name="usuario"
+          autocomplete="username"
+          required
+          class="form-control form-control-lg"
+          [(ngModel)]="login.usuario"
+        />
+        <label mdbLabel class="form-label" for="loginUsuario">Usuário</label>
+      </mdb-form-control>
+
+      <div class="senha-field">
+        <mdb-form-control>
+          <input
+            mdbInput
+            [type]="mostrarSenha ? 'text' : 'password'"
+            id="loginSenha"
+            name="senha"
+            autocomplete="current-password"
+            required
+            class="form-control form-control-lg"
+            [(ngModel)]="login.senha"
+          />
+          <label mdbLabel class="form-label" for="loginSenha">Senha</label>
+        </mdb-form-control>
+        <button
+          type="button"
+          class="toggle-senha"
+          (click)="mostrarSenha = !mostrarSenha"
+          [attr.aria-label]="mostrarSenha ? 'Ocultar senha' : 'Mostrar senha'"
+        >
+          <i class="bi" [class.bi-eye]="!mostrarSenha" [class.bi-eye-slash]="mostrarSenha"></i>
+        </button>
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-lg w-100" [disabled]="carregando">
+        @if (carregando) {
+          <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+          Entrando...
+        } @else {
+          Entrar
+          <i class="bi bi-arrow-right"></i>
+        }
+      </button>
+    </form>
+
+    <footer class="login-footer">v2.2.0 · executando no Kubernetes</footer>
+  </main>
+</div>

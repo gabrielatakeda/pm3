@@ -1,0 +1,26 @@
+/* Estilos compartilhados (page-header, filters, table-wrap, pager) em src/styles.scss */
+:host { display: block; }
+
+.nowrap { white-space: nowrap; }
+
+.done {
+  display: inline-grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  color: var(--green-600);
+  font-size: 1.15rem;
+}
+
+/* Cabecalho usado apenas na versao impressa do relatorio */
+.header-container {
+  display: none;
+  align-items: center;
+  position: relative;
+}
+.logo-container { max-width: 200px; }
+.relatorio-title {
+  font-size: 20px;
+  font-weight: bold;
+  margin: 0 auto;
+}
