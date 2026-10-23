@@ -10,35 +10,12 @@ Migração do projeto **EasyNote** (Mensal 1), um sistema de empréstimo de equi
 
 ## Arquitetura
 
-```
-                 Navegador
-                     │  http://<IP do minikube>:30080
-                     ▼
-     ┌──────── Service easynote-frontend (NodePort 30080) ────────┐
-     │                                                             │
- Pod frontend-1 (nginx)                               Pod frontend-2 (nginx)
-     │   /        → arquivos do Angular                     │
-     │   /api/*   → proxy_pass http://easynote-backend:8082 │
-     └───────────────────────────┬─────────────────────────────┘
-                                 ▼
-          Service easynote-backend (ClusterIP, porta 8082)
-                    balanceia entre os Pods ▼
-            ┌───────────────────┴───────────────────┐
-     Pod backend-1 (Spring)                  Pod backend-2 (Spring)
-            └───────────────────┬───────────────────┘
-                                ▼   jdbc:mysql://easynote-db:3306/easynote
-             Service easynote-db (ClusterIP, porta 3306)
-                                ▼
-                Pod MySQL  ──  PersistentVolumeClaim (1Gi)
-```
-
 ### Como os componentes se comunicam
 
 1. **Navegador → frontend:** o Service `easynote-frontend` é do tipo **NodePort**, e por isso fica acessível de fora do cluster na porta `30080` do nó do Minikube.
 2. **Frontend → backend:** o Angular chama URLs relativas (`/api/...`), que vão para o mesmo nginx que entregou a página. O nginx ([frontend/nginx.conf](frontend/nginx.conf)) repassa essas requisições para `http://easynote-backend:8082`. `easynote-backend` é o nome do Service, resolvido pelo **DNS interno do Kubernetes** (CoreDNS). Como a página e a API têm a mesma origem, não há problema de CORS.
 3. **Backend → banco:** o Spring lê `DB1_HOST`, `DB1_PORT` e `DB1_NAME` do **ConfigMap** e `DB1_USER`/`DB1_PASS` do **Secret**. `DB1_HOST=easynote-db` é o nome do Service do MySQL.
 4. **Balanceamento:** os Services do tipo ClusterIP distribuem as conexões entre todos os Pods prontos que têm o label do `selector`. O nginx abre uma conexão nova com o backend a cada requisição, então as chamadas se alternam entre as 2 réplicas.
-5. **Sessão sem estado:** a autenticação usa JWT assinado com a mesma chave em todas as réplicas. Um token emitido por um Pod é aceito pelo outro, e isso permite escalar o backend sem *sticky session*.
 
 ### Recursos do Kubernetes utilizados
 
@@ -177,61 +154,3 @@ kubectl get pods -l app=easynote-backend -w
 ```
 
 O Deployment mantém o número de réplicas declarado (`replicas: 2`). Quando um Pod é excluído, o ReplicaSet cria outro com um nome novo. Na página `/lb.html`, o cartão do Pod excluído fica cinza e aparece um cartão novo assim que o Pod substituto fica pronto.
-
-### Escalar
-
-```bash
-kubectl scale deployment easynote-backend --replicas=3
-```
-
-### Atualização de versão sem indisponibilidade (rolling update)
-
-O frontend tem duas imagens:
-
-| Tag | Conteúdo |
-|---|---|
-| `easynote-frontend:1.0` | visual original do Mensal 1 |
-| `easynote-frontend:2.0` | visual novo (marrom e verde, responsivo) |
-
-O Deployment usa `strategy: RollingUpdate` com `maxSurge: 1` e `maxUnavailable: 0`. O Kubernetes sobe um Pod novo, espera ele passar na `readinessProbe` e só então desliga um Pod antigo, repetindo até trocar todos. Em nenhum momento há menos de 2 Pods atendendo.
-
-**Antes da apresentação**, deixe a versão antiga no ar:
-
-```bash
-kubectl set image deployment/easynote-frontend frontend=easynote-frontend:1.0
-kubectl annotate deployment/easynote-frontend kubernetes.io/change-cause="v1.0 - visual original" --overwrite
-```
-
-**Na apresentação**, com a aplicação aberta pelo `minikube service`:
-
-```bash
-# 1. publica a versão nova
-kubectl set image deployment/easynote-frontend frontend=easynote-frontend:2.0
-kubectl annotate deployment/easynote-frontend kubernetes.io/change-cause="v2.0 - novo visual" --overwrite
-
-# 2. acompanha a troca, Pod a Pod
-kubectl rollout status deployment/easynote-frontend
-kubectl get pods -l app=easynote-frontend -w
-```
-
-Depois, basta recarregar a página no navegador para ver o visual novo.
-
-Comandos extras para mostrar:
-
-```bash
-kubectl rollout history deployment/easynote-frontend   # versões publicadas
-kubectl rollout undo deployment/easynote-frontend      # volta para a versão anterior (rollback)
-```
-
-> O manifesto [k8s/30-frontend.yaml](k8s/30-frontend.yaml) declara a versão `2.0`. Rodar `kubectl apply -f k8s/` sempre deixa o cluster na versão nova.
-
-## Limpeza
-
-```bash
-kubectl delete -f k8s/      # remove a aplicação (inclusive os dados do banco)
-minikube stop               # para o cluster
-```
-
-## Evidências
-
-As capturas de tela estão em [docs/evidencias](docs/evidencias).
